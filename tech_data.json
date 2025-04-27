@@ -28,8 +28,8 @@
   "What is Docker?": "Docker is a platform used to develop, ship, and run applications inside containers.",
   "What is Kubernetes?": "Kubernetes is an open-source system for automating the deployment and scaling of containerized apps.",
   "What is a compiler?": "A compiler translates source code written in a programming language into machine code.",
-  "What is a text editor?": "A text editor is a program used to write and edit code, such as VS Code or Sublime Text."
-"What is the difference between frontend and backend?": "Frontend refers to the UI of a website, while backend involves server-side logic and databases.",
+  "What is a text editor?": "A text editor is a program used to write and edit code, such as VS Code or Sublime Text.",
+  "What is the difference between frontend and backend?": "Frontend refers to the UI of a website, while backend involves server-side logic and databases.",
   "What is a framework?": "A framework is a set of tools and libraries that helps developers build applications more efficiently.",
   "What is artificial general intelligence (AGI)?": "AGI refers to machines with human-level intelligence across a wide range of tasks.",
   "What is a neural network?": "A neural network is a series of algorithms that mimic the human brain to recognize patterns and data.",
