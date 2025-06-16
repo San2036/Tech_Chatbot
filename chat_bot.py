@@ -10,15 +10,24 @@ from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# NLTK download fix
+# --- NLTK download fix ---
 ssl._create_default_https_context = ssl._create_unverified_context
-for resource in ['punkt', 'stopwords', 'wordnet']:
+
+def safe_nltk_download(resource, path):
     try:
-        nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
+        nltk.data.find(path)
     except LookupError:
         nltk.download(resource)
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            st.error(f"Failed to download NLTK resource: {resource}")
 
-# Preprocessing
+safe_nltk_download("punkt", "tokenizers/punkt")
+safe_nltk_download("stopwords", "corpora/stopwords")
+safe_nltk_download("wordnet", "corpora/wordnet")
+
+# --- Preprocessing ---
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
@@ -30,7 +39,7 @@ def preprocess(text):
     tokens = [lemmatizer.lemmatize(w) for w in tokens if w.isalnum() and w not in stop_words]
     return " ".join(tokens)
 
-# Load intents
+# --- Load intents ---
 file_path = "tech_intents.json"
 intents = []
 try:
@@ -41,7 +50,7 @@ try:
 except Exception as e:
     st.error(f"Error loading intents: {e}")
 
-# Preprocess training data
+# --- Preprocess training data ---
 patterns, responses, tags, processed_patterns = [], [], [], []
 if intents:
     for intent in intents:
@@ -51,11 +60,11 @@ if intents:
             tags.append(intent["tag"])
             responses.append(random.choice(intent["responses"]))
 
-# Train TF-IDF model
+# --- Train TF-IDF model ---
 vectorizer = TfidfVectorizer()
 x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
 
-# Log chat
+# --- Log chat ---
 def log_chat(user_input, bot_response):
     log_file = "tech_chat_log.csv"
     entry = {
@@ -70,7 +79,7 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-# Chatbot logic
+# --- Chatbot logic ---
 def chatbot(input_text):
     if x_train is None:
         return "Sorry, I can't process your query right now."
@@ -88,7 +97,7 @@ def chatbot(input_text):
         return random.choice(matched_intent["responses"])
     return "I understand your question, but I don't have a good answer yet."
 
-# Streamlit UI
+# --- Streamlit UI ---
 def main():
     st.title("💻 Tech Support Chatbot")
     st.sidebar.title("Menu")
