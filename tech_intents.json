@@ -143,7 +143,26 @@
         "If your phone is freezing or hanging, try restarting it, clear cached data, and uninstall unused apps. Ensure your phone's software is up to date.",
         "Battery issues can be caused by background apps. Check battery usage in settings, and disable GPS, Bluetooth, or background sync when not needed.",
         "To free up storage, delete unused files, clear app cache, and consider moving media to cloud storage or SD card."
-      ]
+      ],
+      "context_set": "mobile_issue"
+    },
+    {
+      "tag": "mobile_troubles_followup",
+      "patterns": [
+        "Still not working",
+        "Tried that already",
+        "Yes but still hanging",
+        "Didn’t help",
+        "Phone still slow",
+        "Nothing changed",
+        "Same issue continues"
+      ],
+      "responses": [
+        "Thanks for trying! Next, try booting your phone into Safe Mode to identify if any third-party app is causing the issue.",
+        "Also, check your phone's storage — if it's almost full, that can cause lags. Consider clearing more space.",
+        "If the issue continues, you might need to reset app preferences or do a factory reset after backing up your data."
+      ],
+      "context_filter": "mobile_issue"
     },
     {
       "tag": "data_backup",
