@@ -132,13 +132,17 @@
       "tag": "mobile_troubles",
       "patterns": [
         "Phone is freezing",
+        "Phone is hanging",
+        "Mobile is lagging",
         "Mobile apps not opening",
         "Battery drains quickly",
+        "Mobile phone slow",
         "How to free up storage on my phone"
       ],
       "responses": [
-        "Restart your phone, uninstall unused apps, and clear cached data. Check for software updates too.",
-        "Battery issues can be caused by background apps. Check usage in settings and disable location or Bluetooth if not needed."
+        "If your phone is freezing or hanging, try restarting it, clear cached data, and uninstall unused apps. Ensure your phone's software is up to date.",
+        "Battery issues can be caused by background apps. Check battery usage in settings, and disable GPS, Bluetooth, or background sync when not needed.",
+        "To free up storage, delete unused files, clear app cache, and consider moving media to cloud storage or SD card."
       ]
     },
     {
