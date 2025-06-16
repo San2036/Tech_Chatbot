@@ -31,14 +31,13 @@ except Exception as e:
     st.error(f"Error loading intents: {e}")
 
 # --- Preprocess training data ---
-patterns, responses, tags, processed_patterns = [], [], [], []
+patterns, tags, processed_patterns = [], [], []
 if intents:
     for intent in intents:
         for pattern in intent["patterns"]:
             patterns.append(pattern)
             processed_patterns.append(preprocess(pattern))
             tags.append(intent["tag"])
-            responses.append(random.choice(intent["responses"] if intent["responses"] else [""]))
 
 # --- Train TF-IDF model ---
 vectorizer = TfidfVectorizer()
@@ -59,7 +58,7 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-# --- Dynamic content fetch (improved) ---
+# --- Dynamic Google response fetching ---
 def fetch_dynamic_response(query):
     try:
         search_query = "+".join(query.strip().split())
@@ -68,19 +67,19 @@ def fetch_dynamic_response(query):
         response = requests.get(url, headers=headers, timeout=5)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Try .aCOpRe span (more reliable in many cases)
+        # Try span-based results first
         for span in soup.select('.aCOpRe span'):
             text = span.get_text().strip()
             if len(text.split()) >= 6:
                 return text
 
-        # Fallback to old BNeawe selector
+        # Fallback to div results
         for div in soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd"):
             text = div.get_text().strip()
             if len(text.split()) >= 6:
                 return text
 
-        return "I found some results online, but couldn't extract a summary. Please check Google."
+        return "I found some results online, but couldn't extract a clear summary. Please try searching manually."
     except Exception as e:
         return f"Sorry, I couldn't fetch online results due to an error: {e}"
 
@@ -99,6 +98,7 @@ def chatbot(input_text):
 
     matched_tag = tags[best_index]
     matched_intent = next((intent for intent in intents if intent["tag"] == matched_tag), None)
+
     if matched_intent:
         if matched_intent.get("dynamic", False):
             return fetch_dynamic_response(input_text)
@@ -116,6 +116,7 @@ def main():
     if "clear_flag" not in st.session_state:
         st.session_state.clear_flag = False
 
+    # --- Sidebar ---
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
@@ -124,6 +125,7 @@ def main():
         st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
+    # --- Navigation ---
     st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -136,6 +138,7 @@ def main():
         if st.button("ℹ️ About"):
             st.session_state.page = "about"
 
+    # --- Chat Page ---
     if st.session_state.page == "chat":
         st.subheader("💬 Ask Your Tech Questions")
 
@@ -156,6 +159,7 @@ def main():
 
             log_chat(user_input, bot_reply)
 
+    # --- History Page ---
     elif st.session_state.page == "history":
         st.subheader("🕘 Past Conversations")
         if os.path.exists("tech_chat_log.csv"):
@@ -173,16 +177,18 @@ def main():
         else:
             st.info("No past conversations found.")
 
+    # --- About Page ---
     elif st.session_state.page == "about":
         st.subheader("ℹ️ About This Chatbot")
         st.write("""
         🤖 This is a smart tech support chatbot built using:
         - **Streamlit** for the UI  
-        - **Scikit-learn** for TF-IDF + cosine similarity  
-        - **Google Snippet Fetching** for dynamic questions  
-        - **No NLTK or external NLP libraries**  
+        - **Scikit-learn** for TF-IDF based intent matching  
+        - **Google Search Snippet Fetching** for dynamic questions  
+        - **Local CSV logging** of conversations  
+        - **JSON-based intent training** via `tech_intents.json`  
         
-        💡 Add or customize intents using the `tech_intents.json` file.
+        💡 To update or add responses, edit `tech_intents.json`.
         """)
 
 if __name__ == "__main__":
