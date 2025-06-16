@@ -32,12 +32,19 @@ except Exception as e:
 
 # --- Preprocess training data ---
 patterns, tags, processed_patterns = [], [], []
+tag_to_responses = {}
+dynamic_tags = set()
+
 if intents:
     for intent in intents:
         for pattern in intent["patterns"]:
             patterns.append(pattern)
             processed_patterns.append(preprocess(pattern))
             tags.append(intent["tag"])
+
+        tag_to_responses[intent["tag"]] = intent.get("responses", [])
+        if intent.get("dynamic", False):
+            dynamic_tags.add(intent["tag"])
 
 # --- Train TF-IDF model ---
 vectorizer = TfidfVectorizer()
@@ -79,7 +86,7 @@ def fetch_dynamic_response(query):
             if len(text.split()) >= 6:
                 return text
 
-        return "I found some results online, but couldn't extract a clear summary. Please try searching manually."
+        return "I searched online but couldn't find a clear solution. Try rephrasing or being more specific."
     except Exception as e:
         return f"Sorry, I couldn't fetch online results due to an error: {e}"
 
@@ -93,16 +100,18 @@ def chatbot(input_text):
     best_index = np.argmax(similarity)
     confidence = similarity[best_index]
 
+    # Low confidence fallback: Try Google if available
     if confidence < 0.3:
-        return "I'm not sure I understand that. Can you rephrase?"
+        return fetch_dynamic_response(input_text)
 
     matched_tag = tags[best_index]
-    matched_intent = next((intent for intent in intents if intent["tag"] == matched_tag), None)
+    responses = tag_to_responses.get(matched_tag, [])
 
-    if matched_intent:
-        if matched_intent.get("dynamic", False):
-            return fetch_dynamic_response(input_text)
-        return random.choice(matched_intent["responses"])
+    if matched_tag in dynamic_tags:
+        return fetch_dynamic_response(input_text)
+    elif responses:
+        return random.choice(responses)
+
     return "I understand your question, but I don't have a good answer yet."
 
 # --- Streamlit UI ---
