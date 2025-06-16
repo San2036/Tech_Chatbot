@@ -77,15 +77,9 @@ def chatbot(input_text):
 def main():
     st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
     st.title("💻 Tech Support Chatbot")
-    st.sidebar.title("Menu")
 
-    menu = ["Chat", "Conversation History", "About"]
-    choice = st.sidebar.selectbox("Go to", menu)
-
-    # Sidebar Image (optional)
+    # Sidebar: Only logo and clear history
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
-
-    # Clear chat history
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
         if os.path.exists("tech_chat_log.csv"):
@@ -93,19 +87,29 @@ def main():
         st.success("Chat history cleared!")
         st.experimental_rerun()
 
-    # Initialize chat session memory
+    # Initialize session chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    if choice == "Chat":
-        st.subheader("Ask Your Tech Questions")
+    # --- Top-Level Menu Buttons ---
+    st.subheader("🏠 Home Page")
+    col1, col2, col3 = st.columns(3)
 
-        # Show current session history only
+    with col1:
+        chat_clicked = st.button("💬 Chat")
+    with col2:
+        history_clicked = st.button("🕘 Conversation History")
+    with col3:
+        about_clicked = st.button("ℹ️ About")
+
+    # --- Chat Interface ---
+    if chat_clicked:
+        st.subheader("💬 Ask Your Tech Questions")
+
         for msg in st.session_state.chat_history:
             with st.chat_message(msg["role"]):
                 st.write(msg["text"])
 
-        # New user input
         user_input = st.chat_input("Type your question here...")
         if user_input:
             st.session_state.chat_history.append({"role": "user", "text": user_input})
@@ -119,13 +123,12 @@ def main():
 
             log_chat(user_input, bot_reply)
 
-    elif choice == "Conversation History":
+    # --- Conversation History ---
+    elif history_clicked:
         st.subheader("🕘 Past Conversations")
-
         if os.path.exists("tech_chat_log.csv"):
             chat_df = pd.read_csv("tech_chat_log.csv")
             search_term = st.text_input("Search conversation:")
-
             filtered_df = chat_df[chat_df.apply(
                 lambda row: search_term.lower() in str(row["User Input"]).lower() or
                             search_term.lower() in str(row["Bot Response"]).lower(),
@@ -139,7 +142,8 @@ def main():
         else:
             st.info("No past conversations found.")
 
-    elif choice == "About":
+    # --- About Page ---
+    elif about_clicked:
         st.subheader("ℹ️ About This Chatbot")
         st.write("""
         🤖 This is a smart tech support chatbot built using:
@@ -149,7 +153,7 @@ def main():
 
         💡 Add or customize intents by editing the `tech_intents.json` file.
 
-        💬 Chat history is saved to CSV and visible in the 'Conversation History' tab.
+        💬 Chat history is saved to CSV and visible in the 'Conversation History' section.
         """)
 
 if __name__ == "__main__":
