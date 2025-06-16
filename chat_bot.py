@@ -13,6 +13,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 # NLTK download fix
 ssl._create_default_https_context = ssl._create_unverified_context
 nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
+
+# Preprocessing function
+def preprocess(text):
+    tokens = nltk.word_tokenize(text.lower())
+    tokens = [lemmatizer.lemmatize(w) for w in tokens if w.isalnum() and w not in stop_words]
+    return " ".join(tokens)
 
 # Load intents
 file_path = "tech_intents.json"
@@ -26,17 +39,18 @@ except Exception as e:
     st.error(f"Error loading intents: {e}")
 
 # Preprocess training data
-patterns, responses, tags = [], [], []
+patterns, responses, tags, processed_patterns = [], [], [], []
 if intents:
     for intent in intents:
         for pattern in intent["patterns"]:
             patterns.append(pattern)
+            processed_patterns.append(preprocess(pattern))
             responses.append(random.choice(intent["responses"]))
             tags.append(intent["tag"])
 
 # Train TF-IDF model
 vectorizer = TfidfVectorizer()
-x_train = vectorizer.fit_transform(patterns) if patterns else None
+x_train = vectorizer.fit_transform(processed_patterns) if patterns else None
 
 # Log chat
 def log_chat(user_input, bot_response):
@@ -57,13 +71,19 @@ def log_chat(user_input, bot_response):
 def chatbot(input_text):
     if x_train is None:
         return "Sorry, I can't process your query right now."
-    input_vec = vectorizer.transform([input_text])
+    input_vec = vectorizer.transform([preprocess(input_text)])
     similarity = cosine_similarity(input_vec, x_train).flatten()
     best_index = np.argmax(similarity)
     confidence = similarity[best_index]
+
     if confidence < 0.3:
         return "I'm not sure I understand that. Can you rephrase?"
-    return responses[best_index]
+
+    matched_tag = tags[best_index]
+    matched_intent = next((intent for intent in intents if intent["tag"] == matched_tag), None)
+    if matched_intent:
+        return random.choice(matched_intent["responses"])
+    return "I understand your question, but I don't have a good answer yet."
 
 # Streamlit UI
 def main():
@@ -97,14 +117,17 @@ def main():
 
     elif choice == "Conversation History":
         st.subheader("Past Conversations")
+        search_term = st.text_input("Search conversation:")
         for msg in st.session_state.chat_history:
-            st.text(f"{msg['role'].title()}: {msg['text']}")
+            if search_term.lower() in msg["text"].lower():
+                st.text(f"{msg['role'].title()}: {msg['text']}")
 
     elif choice == "About":
         st.subheader("About This Chatbot")
         st.write("""
-        This is a simple tech support chatbot built using Streamlit, NLTK, and Scikit-learn.
-        It helps answer common technical issues and software-related questions. 💡
+        This is a smart tech support chatbot built using Streamlit, NLTK, and Scikit-learn.
+        It helps answer common technical issues using TF-IDF and cosine similarity for matching user queries.
+        Now enhanced with lemmatization, stop word filtering, and better intent matching.
         """)
 
 if __name__ == "__main__":
