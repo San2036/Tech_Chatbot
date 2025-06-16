@@ -189,7 +189,9 @@
         "For video editing, try DaVinci Resolve or Adobe Premiere. For design, Canva and Figma are great free tools.",
         "VS Code is a great IDE for Python. For task management, use Notion, Trello, or Microsoft To Do."
       ]
-    },tag": "advanced_troubleshooting",
+    },
+    {
+      "tag": "advanced_troubleshooting",
       "patterns": [
         "Tried everything, my PC is still slow",
         "Reinstalled but it crashes",
