@@ -6,13 +6,11 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 # --- Preprocessing ---
 def preprocess(text):
-    # Simple tokenizer & stopword remover
     tokens = re.findall(r'\b\w+\b', text.lower())
     filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
     return " ".join(filtered)
@@ -42,7 +40,7 @@ if intents:
 vectorizer = TfidfVectorizer()
 x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
 
-# --- Log chat ---
+# --- Log chat to CSV ---
 def log_chat(user_input, bot_response):
     log_file = "tech_chat_log.csv"
     entry = {
@@ -56,6 +54,16 @@ def log_chat(user_input, bot_response):
     else:
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
+
+# --- Load history from CSV ---
+def load_chat_history():
+    chat_history = []
+    if os.path.exists("tech_chat_log.csv"):
+        chat_df = pd.read_csv("tech_chat_log.csv")
+        for _, row in chat_df.iterrows():
+            chat_history.append({"role": "user", "text": row["User Input"]})
+            chat_history.append({"role": "assistant", "text": row["Bot Response"]})
+    return chat_history
 
 # --- Chatbot logic ---
 def chatbot(input_text):
@@ -77,13 +85,25 @@ def chatbot(input_text):
 
 # --- Streamlit UI ---
 def main():
+    st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
     st.title("💻 Tech Support Chatbot")
     st.sidebar.title("Menu")
+
     menu = ["Chat", "Conversation History", "About"]
     choice = st.sidebar.selectbox("Go to", menu)
 
+    # Optionally show an image (local or URL)
+    st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
+
     if "chat_history" not in st.session_state:
+        st.session_state.chat_history = load_chat_history()
+
+    if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
+        if os.path.exists("tech_chat_log.csv"):
+            os.remove("tech_chat_log.csv")
+        st.success("Chat history cleared!")
+        st.experimental_rerun()
 
     if choice == "Chat":
         st.subheader("Ask Your Tech Questions")
@@ -106,21 +126,23 @@ def main():
             log_chat(user_input, bot_reply)
 
     elif choice == "Conversation History":
-        st.subheader("Past Conversations")
+        st.subheader("🕘 Past Conversations")
         search_term = st.text_input("Search conversation:")
         for msg in st.session_state.chat_history:
             if search_term.lower() in msg["text"].lower():
                 st.text(f"{msg['role'].title()}: {msg['text']}")
 
     elif choice == "About":
-        st.subheader("About This Chatbot")
+        st.subheader("ℹ️ About This Chatbot")
         st.write("""
         🤖 This is a smart tech support chatbot built using:
-        - Streamlit for the UI
-        - scikit-learn for TF-IDF + cosine similarity matching
-        - JSON intent matching (no external NLP dependencies)
+        - **Streamlit** for the UI  
+        - **Scikit-learn** for TF-IDF + cosine similarity  
+        - **No external NLP dependencies** (like NLTK)
 
-        ✅ This version runs **without any NLTK downloads**!
+        💡 Add more intents by editing the `tech_intents.json` file.
+
+        💬 Chat history is saved even after refresh!
         """)
 
 if __name__ == "__main__":
