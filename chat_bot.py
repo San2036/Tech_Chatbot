@@ -8,8 +8,9 @@ import pandas as pd
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
+import requests
+from bs4 import BeautifulSoup
 
-# ✅ Must be FIRST Streamlit command
 st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
 
 # --- Preprocessing ---
@@ -37,7 +38,7 @@ if intents:
             patterns.append(pattern)
             processed_patterns.append(preprocess(pattern))
             tags.append(intent["tag"])
-            responses.append(random.choice(intent["responses"]))
+            responses.append(random.choice(intent["responses"] if intent["responses"] else [""]))
 
 # --- Train TF-IDF model ---
 vectorizer = TfidfVectorizer()
@@ -58,10 +59,29 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
+# --- Dynamic content fetch ---
+def fetch_dynamic_response(query):
+    try:
+        search_query = "+".join(query.strip().split())
+        url = f"https://www.google.com/search?q={search_query}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers, timeout=5)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        snippets = soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd")
+        for snippet in snippets:
+            text = snippet.get_text()
+            if len(text.split()) > 6:
+                return text
+        return "I found some results online, but couldn't extract a summary. Please check Google."
+    except Exception as e:
+        return f"Sorry, I couldn't fetch online results due to an error: {e}"
+
 # --- Chatbot logic ---
 def chatbot(input_text):
     if x_train is None:
         return "Sorry, I can't process your query right now."
+
     input_vec = vectorizer.transform([preprocess(input_text)])
     similarity = cosine_similarity(input_vec, x_train).flatten()
     best_index = np.argmax(similarity)
@@ -73,6 +93,8 @@ def chatbot(input_text):
     matched_tag = tags[best_index]
     matched_intent = next((intent for intent in intents if intent["tag"] == matched_tag), None)
     if matched_intent:
+        if matched_intent.get("dynamic", False):
+            return fetch_dynamic_response(input_text)
         return random.choice(matched_intent["responses"])
     return "I understand your question, but I don't have a good answer yet."
 
@@ -80,7 +102,7 @@ def chatbot(input_text):
 def main():
     st.title("💻 Tech Support Chatbot")
 
-    # --- Initialize session state ---
+    # --- Session state ---
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "page" not in st.session_state:
@@ -97,7 +119,7 @@ def main():
         st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-    # --- Top Menu Buttons ---
+    # --- Top Buttons ---
     st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -157,11 +179,10 @@ def main():
         🤖 This is a smart tech support chatbot built using:
         - **Streamlit** for the UI  
         - **Scikit-learn** for TF-IDF + cosine similarity  
-        - **No NLTK or external NLP dependencies**
-
-        💡 Add or customize intents by editing the `tech_intents.json` file.
-
-        💬 Chat history is saved to CSV and visible in the 'Conversation History' tab.
+        - **Google Snippet Fetching** for dynamic questions  
+        - **No NLTK or external NLP libraries**  
+        
+        💡 Add or customize intents using the `tech_intents.json` file.
         """)
 
 if __name__ == "__main__":
