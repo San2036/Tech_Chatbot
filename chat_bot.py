@@ -59,7 +59,7 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-# --- Dynamic content fetch ---
+# --- Dynamic content fetch (improved) ---
 def fetch_dynamic_response(query):
     try:
         search_query = "+".join(query.strip().split())
@@ -68,11 +68,18 @@ def fetch_dynamic_response(query):
         response = requests.get(url, headers=headers, timeout=5)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        snippets = soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd")
-        for snippet in snippets:
-            text = snippet.get_text()
-            if len(text.split()) > 6:
+        # Try .aCOpRe span (more reliable in many cases)
+        for span in soup.select('.aCOpRe span'):
+            text = span.get_text().strip()
+            if len(text.split()) >= 6:
                 return text
+
+        # Fallback to old BNeawe selector
+        for div in soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd"):
+            text = div.get_text().strip()
+            if len(text.split()) >= 6:
+                return text
+
         return "I found some results online, but couldn't extract a summary. Please check Google."
     except Exception as e:
         return f"Sorry, I couldn't fetch online results due to an error: {e}"
@@ -102,7 +109,6 @@ def chatbot(input_text):
 def main():
     st.title("💻 Tech Support Chatbot")
 
-    # --- Session state ---
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "page" not in st.session_state:
@@ -110,7 +116,6 @@ def main():
     if "clear_flag" not in st.session_state:
         st.session_state.clear_flag = False
 
-    # --- Sidebar ---
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
@@ -119,7 +124,6 @@ def main():
         st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-    # --- Top Buttons ---
     st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -132,7 +136,6 @@ def main():
         if st.button("ℹ️ About"):
             st.session_state.page = "about"
 
-    # --- Pages ---
     if st.session_state.page == "chat":
         st.subheader("💬 Ask Your Tech Questions")
 
@@ -155,17 +158,14 @@ def main():
 
     elif st.session_state.page == "history":
         st.subheader("🕘 Past Conversations")
-
         if os.path.exists("tech_chat_log.csv"):
             chat_df = pd.read_csv("tech_chat_log.csv")
             search_term = st.text_input("Search conversation:")
-
             filtered_df = chat_df[chat_df.apply(
                 lambda row: search_term.lower() in str(row["User Input"]).lower() or
                             search_term.lower() in str(row["Bot Response"]).lower(),
                 axis=1
             )]
-
             for _, row in filtered_df.iterrows():
                 st.markdown(f"**User:** {row['User Input']}")
                 st.markdown(f"**Bot:** {row['Bot Response']}")
