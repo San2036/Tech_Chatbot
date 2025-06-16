@@ -12,16 +12,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # NLTK download fix
 ssl._create_default_https_context = ssl._create_unverified_context
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+for resource in ['punkt', 'stopwords', 'wordnet']:
+    try:
+        nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
+    except LookupError:
+        nltk.download(resource)
 
+# Preprocessing
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
-# Preprocessing function
 def preprocess(text):
     tokens = nltk.word_tokenize(text.lower())
     tokens = [lemmatizer.lemmatize(w) for w in tokens if w.isalnum() and w not in stop_words]
@@ -45,12 +48,12 @@ if intents:
         for pattern in intent["patterns"]:
             patterns.append(pattern)
             processed_patterns.append(preprocess(pattern))
-            responses.append(random.choice(intent["responses"]))
             tags.append(intent["tag"])
+            responses.append(random.choice(intent["responses"]))
 
 # Train TF-IDF model
 vectorizer = TfidfVectorizer()
-x_train = vectorizer.fit_transform(processed_patterns) if patterns else None
+x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
 
 # Log chat
 def log_chat(user_input, bot_response):
@@ -125,9 +128,12 @@ def main():
     elif choice == "About":
         st.subheader("About This Chatbot")
         st.write("""
-        This is a smart tech support chatbot built using Streamlit, NLTK, and Scikit-learn.
-        It helps answer common technical issues using TF-IDF and cosine similarity for matching user queries.
-        Now enhanced with lemmatization, stop word filtering, and better intent matching.
+        🤖 This is a smart tech support chatbot built using:
+        - Streamlit for the UI
+        - NLTK for text processing (lemmatization, tokenization)
+        - Scikit-learn for TF-IDF + cosine similarity matching
+
+        ✨ It helps answer basic technical questions and can be easily extended with more intents.
         """)
 
 if __name__ == "__main__":
