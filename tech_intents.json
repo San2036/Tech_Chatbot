@@ -1,120 +1,201 @@
-{
-  "intents": [
-    {
-      "tag": "greeting",
-      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening"],
-      "responses": [
-        "Hello! I'm your Tech Support Assistant 🤖. How can I help you today?",
-        "Hi there! Need help with a technical issue?"
-      ]
-    },
-    {
-      "tag": "goodbye",
-      "patterns": ["Bye", "Goodbye", "See you later", "Exit"],
-      "responses": [
-        "Goodbye! Have a great day!",
-        "See you later! If you need help, I'm always here."
-      ]
-    },
-    {
-      "tag": "thanks",
-      "patterns": ["Thanks", "Thank you", "Thanks a lot", "Appreciate it"],
-      "responses": [
-        "You're welcome! 😊",
-        "Glad I could help!"
-      ]
-    },
-    {
-      "tag": "wifi_issues",
-      "patterns": [
-        "My WiFi is not working",
-        "Can't connect to the internet",
-        "Internet is slow",
-        "WiFi keeps disconnecting"
-      ],
-      "responses": [
-        "Try restarting your router and device. If the issue persists, check if other devices are affected.",
-        "Make sure your network drivers are up to date. You can do this via Device Manager on Windows."
-      ]
-    },
-    {
-      "tag": "software_installation",
-      "patterns": [
-        "How to install software",
-        "Install MS Office",
-        "Install antivirus",
-        "Set up new program"
-      ],
-      "responses": [
-        "You can usually install software by downloading it from the official website and running the setup file.",
-        "Make sure to read installation instructions. For Microsoft Office, go to office.com and sign in with your account."
-      ]
-    },
-    {
-      "tag": "windows_update",
-      "patterns": [
-        "How to update Windows",
-        "Windows not updating",
-        "Windows update stuck",
-        "Update error in Windows"
-      ],
-      "responses": [
-        "Go to Settings → Update & Security → Windows Update. Click 'Check for updates'.",
-        "Try troubleshooting via Windows Update Troubleshooter if updates are stuck."
-      ]
-    },
-    {
-      "tag": "blue_screen_error",
-      "patterns": [
-        "Blue screen of death",
-        "My PC crashed with blue screen",
-        "BSOD error",
-        "System crash with error code"
-      ],
-      "responses": [
-        "BSOD usually indicates a driver or hardware issue. Note the error code and search for it on Microsoft's site.",
-        "Try booting into Safe Mode and updating your drivers or uninstalling recent software."
-      ]
-    },
-    {
-      "tag": "advanced_troubleshooting",
-      "patterns": [
-        "Tried everything, my PC is still slow",
-        "Reinstalled but it crashes",
-        "Nothing is working",
-        "Still facing issue",
-        "Problem not solved"
-      ],
-      "responses": [],
-      "dynamic": true
-    },
-    {
-      "tag": "software_suggestions",
-      "patterns": [
-        "Suggest a good antivirus",
-        "Best video editor?",
-        "What software should I use for coding?",
-        "Best tools for productivity"
-      ],
-      "responses": [],
-      "dynamic": true
-    },
-    {
-      "tag": "general_help",
-      "patterns": [
-        "How to fix computer issues",
-        "My laptop isn't working",
-        "Having trouble with my PC",
-        "Help with computer problem"
-      ],
-      "responses": [],
-      "dynamic": true
-    },
-    {
-      "tag": "fallback",
-      "patterns": [],
-      "responses": [],
-      "dynamic": true
+import os
+import json
+import random
+import re
+import streamlit as st
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
+from sklearn.metrics.pairwise import cosine_similarity
+import requests
+
+st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
+
+# --- Preprocessing ---
+def preprocess(text):
+    tokens = re.findall(r'\b\w+\b', text.lower())
+    filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
+    return " ".join(filtered)
+
+# --- Load intents ---
+file_path = "tech_intents.json"
+intents = []
+try:
+    with open(file_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+        if "intents" in data:
+            intents = data["intents"]
+except Exception as e:
+    st.error(f"Error loading intents: {e}")
+
+# --- Preprocess training data ---
+patterns, responses, tags, processed_patterns = [], [], [], []
+if intents:
+    for intent in intents:
+        for pattern in intent["patterns"]:
+            patterns.append(pattern)
+            processed_patterns.append(preprocess(pattern))
+            tags.append(intent["tag"])
+            responses.append(random.choice(intent["responses"] if intent["responses"] else [""]))
+
+# --- Train TF-IDF model ---
+vectorizer = TfidfVectorizer()
+x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
+
+# --- Log chat to CSV ---
+def log_chat(user_input, bot_response):
+    log_file = "tech_chat_log.csv"
+    entry = {
+        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "User Input": user_input,
+        "Bot Response": bot_response
     }
-  ]
-}
+    if os.path.exists(log_file):
+        df = pd.read_csv(log_file)
+        df = pd.concat([df, pd.DataFrame([entry])], ignore_index=True)
+    else:
+        df = pd.DataFrame([entry])
+    df.to_csv(log_file, index=False)
+
+# --- Dynamic API fetch or fallback ---
+def fetch_dynamic_response(query):
+    try:
+        # Replace this with your actual API endpoint
+        api_url = "https://api.example.com/query"
+        params = {"q": query}
+        headers = {"Accept": "application/json"}
+        response = requests.get(api_url, params=params, headers=headers, timeout=5)
+
+        if response.status_code == 200:
+            result = response.json()
+            return result.get("answer", "Sorry, I couldn't find a suitable answer.")
+        else:
+            return "Our support API didn't respond correctly. Try again later."
+    except Exception:
+        # Simulated fallback answers
+        fallback_answers = {
+            "software": "For coding, VS Code is highly recommended. For antivirus, try Bitdefender or Kaspersky.",
+            "slow": "If your PC is still slow, try checking startup programs and background processes in Task Manager.",
+            "crashes": "Frequent crashes may indicate RAM or driver issues. Run a memory diagnostic test.",
+            "help": "Try specifying the problem in detail — is it hardware or software related?"
+        }
+        for keyword in fallback_answers:
+            if keyword in query.lower():
+                return fallback_answers[keyword]
+        return "I'm still learning! Please check support forums or describe the problem more clearly."
+
+# --- Chatbot logic ---
+def chatbot(input_text):
+    if x_train is None:
+        return "Sorry, I can't process your query right now."
+
+    input_vec = vectorizer.transform([preprocess(input_text)])
+    similarity = cosine_similarity(input_vec, x_train).flatten()
+    best_index = np.argmax(similarity)
+    confidence = similarity[best_index]
+
+    if confidence < 0.3:
+        return "I'm not sure I understand that. Can you rephrase?"
+
+    matched_tag = tags[best_index]
+    matched_intent = next((intent for intent in intents if intent["tag"] == matched_tag), None)
+
+    if matched_intent:
+        if matched_intent.get("dynamic", False):
+            dynamic_response = fetch_dynamic_response(input_text)
+            if not dynamic_response or "couldn't fetch" in dynamic_response:
+                return random.choice(matched_intent["responses"]) if matched_intent["responses"] else \
+                    "Still searching for an answer. Please try rephrasing."
+            return dynamic_response
+        return random.choice(matched_intent["responses"])
+
+    return "I understand your question, but I don't have a good answer yet."
+
+# --- Streamlit UI ---
+def main():
+    st.title("💻 Tech Support Chatbot")
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    if "page" not in st.session_state:
+        st.session_state.page = "home"
+    if "clear_flag" not in st.session_state:
+        st.session_state.clear_flag = False
+
+    # --- Sidebar ---
+    st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
+    if st.sidebar.button("🧹 Clear Chat History"):
+        st.session_state.chat_history = []
+        if os.path.exists("tech_chat_log.csv"):
+            os.remove("tech_chat_log.csv")
+        st.session_state.clear_flag = True
+        st.success("Chat history cleared!")
+
+    # --- Navigation ---
+    st.subheader("🏠 Home Page")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("💬 Chat"):
+            st.session_state.page = "chat"
+    with col2:
+        if st.button("🕘 Conversation History"):
+            st.session_state.page = "history"
+    with col3:
+        if st.button("ℹ️ About"):
+            st.session_state.page = "about"
+
+    # --- Pages ---
+    if st.session_state.page == "chat":
+        st.subheader("💬 Ask Your Tech Questions")
+
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]):
+                st.write(msg["text"])
+
+        user_input = st.chat_input("Type your question here...")
+        if user_input:
+            st.session_state.chat_history.append({"role": "user", "text": user_input})
+            with st.chat_message("user"):
+                st.write(user_input)
+
+            bot_reply = chatbot(user_input)
+            st.session_state.chat_history.append({"role": "assistant", "text": bot_reply})
+            with st.chat_message("assistant"):
+                st.write(bot_reply)
+
+            log_chat(user_input, bot_reply)
+
+    elif st.session_state.page == "history":
+        st.subheader("🕘 Past Conversations")
+
+        if os.path.exists("tech_chat_log.csv"):
+            chat_df = pd.read_csv("tech_chat_log.csv")
+            search_term = st.text_input("Search conversation:")
+
+            filtered_df = chat_df[chat_df.apply(
+                lambda row: search_term.lower() in str(row["User Input"]).lower() or
+                            search_term.lower() in str(row["Bot Response"]).lower(),
+                axis=1
+            )]
+
+            for _, row in filtered_df.iterrows():
+                st.markdown(f"**User:** {row['User Input']}")
+                st.markdown(f"**Bot:** {row['Bot Response']}")
+                st.markdown("---")
+        else:
+            st.info("No past conversations found.")
+
+    elif st.session_state.page == "about":
+        st.subheader("ℹ️ About This Chatbot")
+        st.write("""
+        🤖 This is a smart tech support chatbot built using:
+        - **Streamlit** for the UI  
+        - **Scikit-learn** for TF-IDF + cosine similarity  
+        - **Dynamic Answering** via custom API or fallback logic  
+        
+        💡 You can extend this bot by adding more intents to `tech_intents.json`.
+        """)
+
+if __name__ == "__main__":
+    main()
