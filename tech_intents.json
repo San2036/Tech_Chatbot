@@ -10,184 +10,70 @@
     },
     {
       "tag": "goodbye",
-      "patterns": ["Bye", "Goodbye", "See you", "Talk later"],
+      "patterns": ["Bye", "Goodbye", "See you later", "Exit"],
       "responses": [
-        "Goodbye! Feel free to return if you need more help.",
-        "See you! Hope your tech runs smoothly!"
+        "Goodbye! Have a great day!",
+        "See you later! If you need help, I'm always here."
       ]
     },
     {
       "tag": "thanks",
-      "patterns": ["Thanks", "Thank you", "Much appreciated"],
+      "patterns": ["Thanks", "Thank you", "Thanks a lot", "Appreciate it"],
       "responses": [
-        "You're welcome! Happy to help. 😊",
-        "No problem! Let me know if you need anything else."
+        "You're welcome! 😊",
+        "Glad I could help!"
       ]
     },
     {
-      "tag": "install_software",
+      "tag": "wifi_issues",
       "patterns": [
-        "How do I install Python?",
-        "Steps to install VS Code",
-        "Help installing software",
-        "How to install Java?"
+        "My WiFi is not working",
+        "Can't connect to the internet",
+        "Internet is slow",
+        "WiFi keeps disconnecting"
       ],
       "responses": [
-        "To install software like Python, visit the official website, download the installer for your OS, and follow the setup instructions.",
-        "For VS Code, go to code.visualstudio.com, download it, and run the installer. Don't forget to install extensions you need!"
+        "Try restarting your router and device. If the issue persists, check if other devices are affected.",
+        "Make sure your network drivers are up to date. You can do this via Device Manager on Windows."
       ]
     },
     {
-      "tag": "network_issues",
+      "tag": "software_installation",
       "patterns": [
-        "Why is my internet not working?",
-        "Network problems",
-        "Can't connect to WiFi",
-        "WiFi is slow"
+        "How to install software",
+        "Install MS Office",
+        "Install antivirus",
+        "Set up new program"
       ],
       "responses": [
-        "Try restarting your router. If the issue persists, check with your service provider or troubleshoot network settings.",
-        "You can also try forgetting and reconnecting to the WiFi or checking for driver updates on your device."
+        "You can usually install software by downloading it from the official website and running the setup file.",
+        "Make sure to read installation instructions. For Microsoft Office, go to office.com and sign in with your account."
       ]
     },
     {
-      "tag": "troubleshooting",
+      "tag": "windows_update",
       "patterns": [
-        "My app is crashing",
-        "Computer is slow",
-        "System hangs",
-        "How to fix performance issues"
+        "How to update Windows",
+        "Windows not updating",
+        "Windows update stuck",
+        "Update error in Windows"
       ],
       "responses": [
-        "Try closing unused programs, checking for malware, and updating your software. Restarting often helps too!",
-        "Run a system cleanup or check for hardware issues like insufficient RAM or overheating."
+        "Go to Settings → Update & Security → Windows Update. Click 'Check for updates'.",
+        "Try troubleshooting via Windows Update Troubleshooter if updates are stuck."
       ]
     },
     {
-      "tag": "update_software",
+      "tag": "blue_screen_error",
       "patterns": [
-        "How to update Windows?",
-        "Update apps",
-        "System update not working",
-        "Check for updates"
+        "Blue screen of death",
+        "My PC crashed with blue screen",
+        "BSOD error",
+        "System crash with error code"
       ],
       "responses": [
-        "Go to Settings → Update & Security → Windows Update to check for updates. Ensure you're connected to the internet.",
-        "Most apps have an 'Update' option in their settings or help menu. Use that or visit the official website."
-      ]
-    },
-    {
-      "tag": "password_reset",
-      "patterns": [
-        "I forgot my password",
-        "How do I reset my password?",
-        "Recover account access",
-        "Can't log in to my account"
-      ],
-      "responses": [
-        "Go to the login page and click on 'Forgot Password'. Follow the steps to reset via email or phone.",
-        "Most platforms have password recovery options using OTP or security questions. Need help with a specific site?"
-      ]
-    },
-    {
-      "tag": "email_issues",
-      "patterns": [
-        "Can't send emails",
-        "Email not syncing",
-        "Mail app issues",
-        "Receiving duplicate emails"
-      ],
-      "responses": [
-        "Check your internet connection, ensure outgoing/incoming servers are correct, and try restarting your mail app.",
-        "Clear cache, verify login credentials, or try removing and re-adding the email account to your device."
-      ]
-    },
-    {
-      "tag": "printer_issues",
-      "patterns": [
-        "Printer not working",
-        "Can't print documents",
-        "Printer offline",
-        "Printing is very slow"
-      ],
-      "responses": [
-        "Ensure the printer is powered on, properly connected, and not out of paper/ink. Try restarting the printer and your PC.",
-        "Go to Control Panel > Devices and Printers > Right-click your printer > Set as default printer."
-      ]
-    },
-    {
-      "tag": "virus_protection",
-      "patterns": [
-        "Do I need antivirus?",
-        "Protect my PC from viruses",
-        "Free antivirus recommendations",
-        "How to remove malware"
-      ],
-      "responses": [
-        "Yes, antivirus helps protect your system. Windows Defender is a built-in option, or try Avast, Bitdefender, or Kaspersky.",
-        "Scan your PC regularly, avoid unknown links, and use secure Wi-Fi connections. Malwarebytes is a good removal tool."
-      ]
-    },
-    {
-      "tag": "mobile_troubles",
-      "patterns": [
-        "Phone is freezing",
-        "Phone is hanging",
-        "Mobile is lagging",
-        "Mobile apps not opening",
-        "Battery drains quickly",
-        "Mobile phone slow",
-        "How to free up storage on my phone"
-      ],
-      "responses": [
-        "If your phone is freezing or hanging, try restarting it, clear cached data, and uninstall unused apps. Ensure your phone's software is up to date.",
-        "Battery issues can be caused by background apps. Check battery usage in settings, and disable GPS, Bluetooth, or background sync when not needed.",
-        "To free up storage, delete unused files, clear app cache, and consider moving media to cloud storage or SD card."
-      ],
-      "context_set": "mobile_issue"
-    },
-    {
-      "tag": "mobile_troubles_followup",
-      "patterns": [
-        "Still not working",
-        "Tried that already",
-        "Yes but still hanging",
-        "Didn’t help",
-        "Phone still slow",
-        "Nothing changed",
-        "Same issue continues"
-      ],
-      "responses": [
-        "Thanks for trying! Next, try booting your phone into Safe Mode to identify if any third-party app is causing the issue.",
-        "Also, check your phone's storage — if it's almost full, that can cause lags. Consider clearing more space.",
-        "If the issue continues, you might need to reset app preferences or do a factory reset after backing up your data."
-      ],
-      "context_filter": "mobile_issue"
-    },
-    {
-      "tag": "data_backup",
-      "patterns": [
-        "How to back up my data?",
-        "Backup phone files",
-        "Cloud backup options",
-        "External hard drive for backup"
-      ],
-      "responses": [
-        "Use cloud services like Google Drive, iCloud, or OneDrive. For large files, use an external hard drive or SSD.",
-        "Regularly backing up ensures you don’t lose important files during system crashes or upgrades."
-      ]
-    },
-    {
-      "tag": "software_recommendations",
-      "patterns": [
-        "Best video editing software?",
-        "Which IDE for Python?",
-        "Free graphic design tools",
-        "What app to use for task management?"
-      ],
-      "responses": [
-        "For video editing, try DaVinci Resolve or Adobe Premiere. For design, Canva and Figma are great free tools.",
-        "VS Code is a great IDE for Python. For task management, use Notion, Trello, or Microsoft To Do."
+        "BSOD usually indicates a driver or hardware issue. Note the error code and search for it on Microsoft's site.",
+        "Try booting into Safe Mode and updating your drivers or uninstalling recent software."
       ]
     },
     {
@@ -196,87 +82,39 @@
         "Tried everything, my PC is still slow",
         "Reinstalled but it crashes",
         "Nothing is working",
-        "I updated but same issue",
-        "Still facing the problem"
+        "Still facing issue",
+        "Problem not solved"
       ],
-      "responses": [
-        "Let's go deeper. Have you tried booting into Safe Mode to isolate the problem?",
-        "If reinstalling didn’t help, it could be a hardware problem. Try checking the RAM or disk health using built-in diagnostics.",
-        "You can also reset your PC (Windows → Settings → Recovery → Reset this PC). Choose to keep your files if needed.",
-        "Still stuck? Provide more details: when did the issue start, what changed recently, and what OS/device are you using?",
-        "Consider logging system events (Event Viewer in Windows) or using tools like `sfc /scannow` and `DISM` to repair corrupted files."
-      ]
+      "responses": [],
+      "dynamic": true
     },
     {
-      "tag": "device_overheating",
+      "tag": "software_suggestions",
       "patterns": [
-        "Phone is getting hot",
-        "Laptop overheating",
-        "Device heating up fast",
-        "Why is my phone so hot?",
-        "Overheating while gaming",
-        "Overheating issues"
+        "Suggest a good antivirus",
+        "Best video editor?",
+        "What software should I use for coding?",
+        "Best tools for productivity"
       ],
-      "responses": [
-        "Overheating can be caused by background apps, intensive games, or poor ventilation. Close background apps and avoid direct sunlight.",
-        "If your laptop is heating, clean its vents and fans. You can also use a cooling pad.",
-        "Check if any recent update or app is causing excessive CPU usage.",
-        "Avoid using the device while charging if heating is frequent. This strains the battery.",
-        "If overheating continues, consider taking the device to a service center — it could be a battery or motherboard issue."
-      ]
+      "responses": [],
+      "dynamic": true
     },
     {
-      "tag": "storage_issues",
+      "tag": "general_help",
       "patterns": [
-        "Not enough space on phone",
-        "Can't install apps",
-        "Storage full error",
-        "Phone says low storage",
-        "How to clean up storage"
+        "How to fix computer issues",
+        "My laptop isn't working",
+        "Having trouble with my PC",
+        "Help with computer problem"
       ],
-      "responses": [
-        "Delete large files, old videos/photos, and unused apps. Clear cache from Settings → Storage.",
-        "Use Google Files app or a file manager to identify large or duplicate files.",
-        "Move files to an SD card or cloud storage like Google Drive or Dropbox.",
-        "Some system files and updates take up space. Restarting after clearing helps reclaim memory.",
-        "If you're using WhatsApp, go to Settings → Storage & Data → Manage Storage to remove unnecessary media."
-      ]
+      "responses": [],
+      "dynamic": true
     },
     {
-      "tag": "app_specific_issues",
-      "patterns": [
-        "WhatsApp not opening",
-        "Instagram keeps crashing",
-        "YouTube not loading",
-        "Facebook app issue",
-        "App stuck or frozen"
-      ],
-      "responses": [
-        "Clear the app cache and data from Settings → Apps → [App Name] → Storage.",
-        "Ensure the app is updated to the latest version via Play Store/App Store.",
-        "Reinstall the app if clearing cache doesn’t help. Backup data if needed.",
-        "Try restarting your device or checking if the app is down using sites like downdetector.com.",
-        "If the issue persists only on mobile data, switch to Wi-Fi to test connectivity."
-      ]
-    },
-    {
-      "tag": "bluetooth_issues",
-      "patterns": [
-        "Bluetooth not working",
-        "Can't connect Bluetooth device",
-        "Bluetooth keeps disconnecting",
-        "Headphones won't pair",
-        "Bluetooth pairing failed"
-      ],
-      "responses": [
-        "Turn Bluetooth off and on again. Then forget and re-pair the device.",
-        "Ensure the other device is discoverable and fully charged.",
-        "Remove old paired devices that might be interfering.",
-        "Try restarting both your device and the Bluetooth accessory.",
-        "Update Bluetooth drivers or firmware if using Windows or macOS."
-      ]
+      "tag": "fallback",
+      "patterns": [],
+      "responses": [],
+      "dynamic": true
     }
   ]
 }
-
-  
