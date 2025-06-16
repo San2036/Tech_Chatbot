@@ -1,49 +1,21 @@
 import os
 import json
-import ssl
 import random
+import re
 import streamlit as st
-import nltk
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-# --- Set up NLTK data path ---
-NLTK_DIR = os.path.join(os.getcwd(), "nltk_data")
-os.makedirs(NLTK_DIR, exist_ok=True)
-nltk.data.path.append(NLTK_DIR)
-
-# --- NLTK download fix ---
-ssl._create_default_https_context = ssl._create_unverified_context
-
-def safe_nltk_download(resource):
-    try:
-        nltk.data.find(resource)
-    except LookupError:
-        try:
-            nltk.download(resource, download_dir=NLTK_DIR)
-            nltk.data.find(resource)
-        except Exception:
-            st.error(f"❌ Failed to download NLTK resource: {resource}")
-
-# Download needed resources
-safe_nltk_download("tokenizers/punkt")
-safe_nltk_download("corpora/stopwords")
-safe_nltk_download("corpora/wordnet")
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 # --- Preprocessing ---
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-
-lemmatizer = WordNetLemmatizer()
-stop_words = set(stopwords.words('english'))
-
 def preprocess(text):
-    tokens = nltk.word_tokenize(text.lower())
-    tokens = [lemmatizer.lemmatize(w) for w in tokens if w.isalnum() and w not in stop_words]
-    return " ".join(tokens)
+    # Simple tokenizer & stopword remover
+    tokens = re.findall(r'\b\w+\b', text.lower())
+    filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
+    return " ".join(filtered)
 
 # --- Load intents ---
 file_path = "tech_intents.json"
@@ -145,10 +117,10 @@ def main():
         st.write("""
         🤖 This is a smart tech support chatbot built using:
         - Streamlit for the UI
-        - NLTK for text processing (lemmatization, tokenization)
-        - Scikit-learn for TF-IDF + cosine similarity matching
+        - scikit-learn for TF-IDF + cosine similarity matching
+        - JSON intent matching (no external NLP dependencies)
 
-        ✨ It helps answer basic technical questions and can be easily extended with more intents.
+        ✅ This version runs **without any NLTK downloads**!
         """)
 
 if __name__ == "__main__":
