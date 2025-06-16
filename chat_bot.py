@@ -83,6 +83,8 @@ def main():
         st.session_state.chat_history = []
     if "page" not in st.session_state:
         st.session_state.page = "home"
+    if "clear_flag" not in st.session_state:
+        st.session_state.clear_flag = False
 
     # --- Sidebar ---
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
@@ -90,8 +92,8 @@ def main():
         st.session_state.chat_history = []
         if os.path.exists("tech_chat_log.csv"):
             os.remove("tech_chat_log.csv")
+        st.session_state.clear_flag = True
         st.success("Chat history cleared!")
-        st.experimental_rerun()
 
     # --- Top Menu Buttons ---
     st.subheader("🏠 Home Page")
