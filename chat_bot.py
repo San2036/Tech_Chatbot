@@ -9,6 +9,9 @@ from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics.pairwise import cosine_similarity
 
+# ✅ Must be FIRST Streamlit command
+st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
+
 # --- Preprocessing ---
 def preprocess(text):
     tokens = re.findall(r'\b\w+\b', text.lower())
@@ -75,7 +78,6 @@ def chatbot(input_text):
 
 # --- Streamlit UI ---
 def main():
-    st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
     st.title("💻 Tech Support Chatbot")
 
     # --- Initialize session state ---
