@@ -10,22 +10,28 @@ from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+# --- Set up NLTK data path ---
+NLTK_DIR = os.path.join(os.getcwd(), "nltk_data")
+os.makedirs(NLTK_DIR, exist_ok=True)
+nltk.data.path.append(NLTK_DIR)
+
 # --- NLTK download fix ---
 ssl._create_default_https_context = ssl._create_unverified_context
 
-def safe_nltk_download(resource, path):
+def safe_nltk_download(resource):
     try:
-        nltk.data.find(path)
+        nltk.data.find(resource)
     except LookupError:
-        nltk.download(resource)
         try:
-            nltk.data.find(path)
-        except LookupError:
-            st.error(f"Failed to download NLTK resource: {resource}")
+            nltk.download(resource, download_dir=NLTK_DIR)
+            nltk.data.find(resource)
+        except Exception:
+            st.error(f"❌ Failed to download NLTK resource: {resource}")
 
-safe_nltk_download("punkt", "tokenizers/punkt")
-safe_nltk_download("stopwords", "corpora/stopwords")
-safe_nltk_download("wordnet", "corpora/wordnet")
+# Download needed resources
+safe_nltk_download("tokenizers/punkt")
+safe_nltk_download("corpora/stopwords")
+safe_nltk_download("corpora/wordnet")
 
 # --- Preprocessing ---
 from nltk.corpus import stopwords
