@@ -189,6 +189,92 @@
         "For video editing, try DaVinci Resolve or Adobe Premiere. For design, Canva and Figma are great free tools.",
         "VS Code is a great IDE for Python. For task management, use Notion, Trello, or Microsoft To Do."
       ]
+    },tag": "advanced_troubleshooting",
+      "patterns": [
+        "Tried everything, my PC is still slow",
+        "Reinstalled but it crashes",
+        "Nothing is working",
+        "I updated but same issue",
+        "Still facing the problem"
+      ],
+      "responses": [
+        "Let's go deeper. Have you tried booting into Safe Mode to isolate the problem?",
+        "If reinstalling didn’t help, it could be a hardware problem. Try checking the RAM or disk health using built-in diagnostics.",
+        "You can also reset your PC (Windows → Settings → Recovery → Reset this PC). Choose to keep your files if needed.",
+        "Still stuck? Provide more details: when did the issue start, what changed recently, and what OS/device are you using?",
+        "Consider logging system events (Event Viewer in Windows) or using tools like `sfc /scannow` and `DISM` to repair corrupted files."
+      ]
+    },
+    {
+      "tag": "device_overheating",
+      "patterns": [
+        "Phone is getting hot",
+        "Laptop overheating",
+        "Device heating up fast",
+        "Why is my phone so hot?",
+        "Overheating while gaming",
+        "Overheating issues"
+      ],
+      "responses": [
+        "Overheating can be caused by background apps, intensive games, or poor ventilation. Close background apps and avoid direct sunlight.",
+        "If your laptop is heating, clean its vents and fans. You can also use a cooling pad.",
+        "Check if any recent update or app is causing excessive CPU usage.",
+        "Avoid using the device while charging if heating is frequent. This strains the battery.",
+        "If overheating continues, consider taking the device to a service center — it could be a battery or motherboard issue."
+      ]
+    },
+    {
+      "tag": "storage_issues",
+      "patterns": [
+        "Not enough space on phone",
+        "Can't install apps",
+        "Storage full error",
+        "Phone says low storage",
+        "How to clean up storage"
+      ],
+      "responses": [
+        "Delete large files, old videos/photos, and unused apps. Clear cache from Settings → Storage.",
+        "Use Google Files app or a file manager to identify large or duplicate files.",
+        "Move files to an SD card or cloud storage like Google Drive or Dropbox.",
+        "Some system files and updates take up space. Restarting after clearing helps reclaim memory.",
+        "If you're using WhatsApp, go to Settings → Storage & Data → Manage Storage to remove unnecessary media."
+      ]
+    },
+    {
+      "tag": "app_specific_issues",
+      "patterns": [
+        "WhatsApp not opening",
+        "Instagram keeps crashing",
+        "YouTube not loading",
+        "Facebook app issue",
+        "App stuck or frozen"
+      ],
+      "responses": [
+        "Clear the app cache and data from Settings → Apps → [App Name] → Storage.",
+        "Ensure the app is updated to the latest version via Play Store/App Store.",
+        "Reinstall the app if clearing cache doesn’t help. Backup data if needed.",
+        "Try restarting your device or checking if the app is down using sites like downdetector.com.",
+        "If the issue persists only on mobile data, switch to Wi-Fi to test connectivity."
+      ]
+    },
+    {
+      "tag": "bluetooth_issues",
+      "patterns": [
+        "Bluetooth not working",
+        "Can't connect Bluetooth device",
+        "Bluetooth keeps disconnecting",
+        "Headphones won't pair",
+        "Bluetooth pairing failed"
+      ],
+      "responses": [
+        "Turn Bluetooth off and on again. Then forget and re-pair the device.",
+        "Ensure the other device is discoverable and fully charged.",
+        "Remove old paired devices that might be interfering.",
+        "Try restarting both your device and the Bluetooth accessory.",
+        "Update Bluetooth drivers or firmware if using Windows or macOS."
+      ]
     }
   ]
 }
+
+  
