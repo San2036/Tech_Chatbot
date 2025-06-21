@@ -13,13 +13,13 @@ from bs4 import BeautifulSoup
 
 st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
 
-# --- Preprocessing ---
+
 def preprocess(text):
     tokens = re.findall(r'\b\w+\b', text.lower())
     filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
     return " ".join(filtered)
 
-# --- Load intents ---
+
 file_path = "tech_intents.json"
 intents = []
 try:
@@ -30,7 +30,7 @@ try:
 except Exception as e:
     st.error(f"Error loading intents: {e}")
 
-# --- Preprocess training data ---
+
 patterns, tags, processed_patterns = [], [], []
 tag_to_responses = {}
 dynamic_tags = set()
@@ -46,11 +46,11 @@ if intents:
         if intent.get("dynamic", False):
             dynamic_tags.add(intent["tag"])
 
-# --- Train TF-IDF model ---
+
 vectorizer = TfidfVectorizer()
 x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
 
-# --- Log chat to CSV ---
+
 def log_chat(user_input, bot_response):
     log_file = "tech_chat_log.csv"
     entry = {
@@ -65,7 +65,7 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-# --- Dynamic Google response fetching ---
+
 def fetch_dynamic_response(query):
     try:
         search_query = "+".join(query.strip().split())
@@ -80,7 +80,7 @@ def fetch_dynamic_response(query):
             if len(text.split()) >= 6:
                 return text
 
-        # Fallback to div results
+        
         for div in soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd"):
             text = div.get_text().strip()
             if len(text.split()) >= 6:
@@ -90,7 +90,7 @@ def fetch_dynamic_response(query):
     except Exception as e:
         return f"Sorry, I couldn't fetch online results due to an error: {e}"
 
-# --- Chatbot logic ---
+
 def chatbot(input_text):
     if x_train is None:
         return "Sorry, I can't process your query right now."
@@ -114,7 +114,7 @@ def chatbot(input_text):
 
     return "I understand your question, but I don't have a good answer yet."
 
-# --- Streamlit UI ---
+
 def main():
     st.title("💻 Tech Support Chatbot")
 
@@ -125,7 +125,7 @@ def main():
     if "clear_flag" not in st.session_state:
         st.session_state.clear_flag = False
 
-    # --- Sidebar ---
+    
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
@@ -134,7 +134,7 @@ def main():
         st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-    # --- Navigation ---
+   
     st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -147,7 +147,7 @@ def main():
         if st.button("ℹ️ About"):
             st.session_state.page = "about"
 
-    # --- Chat Page ---
+ 
     if st.session_state.page == "chat":
         st.subheader("💬 Ask Your Tech Questions")
 
@@ -168,7 +168,7 @@ def main():
 
             log_chat(user_input, bot_reply)
 
-    # --- History Page ---
+  
     elif st.session_state.page == "history":
         st.subheader("🕘 Past Conversations")
         if os.path.exists("tech_chat_log.csv"):
@@ -186,7 +186,7 @@ def main():
         else:
             st.info("No past conversations found.")
 
-    # --- About Page ---
+   
     elif st.session_state.page == "about":
         st.subheader("ℹ️ About This Chatbot")
         st.write("""
