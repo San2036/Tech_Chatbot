@@ -4,16 +4,16 @@
       "tag": "greeting",
       "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening"],
       "responses": [
-        "Hello! I'm your Tech Support Assistant 🤖. How can I help you today?",
-        "Hi there! Need help with a technical issue?"
+        "Hello! I'm your Ocean Hazard Assistant 🌊. How can I help you today?",
+        "Hi there! Need information on ocean hazards or warnings?"
       ]
     },
     {
       "tag": "goodbye",
       "patterns": ["Bye", "Goodbye", "See you later", "Exit"],
       "responses": [
-        "Goodbye! Have a great day!",
-        "See you later! If you need help, I'm always here."
+        "Stay safe! Goodbye! 🌊",
+        "See you later! Keep an eye on ocean alerts."
       ]
     },
     {
@@ -21,256 +21,147 @@
       "patterns": ["Thanks", "Thank you", "Thanks a lot", "Appreciate it"],
       "responses": [
         "You're welcome! 😊",
-        "Glad I could help!"
+        "Glad I could help! Stay safe!"
       ]
     },
     {
-      "tag": "wifi_issues",
+      "tag": "tsunami_warning",
       "patterns": [
-        "My WiFi is not working",
-        "Can't connect to the internet",
-        "Internet is slow",
-        "WiFi keeps disconnecting"
+        "Tsunami alert",
+        "Tsunami warning issued",
+        "Is there a tsunami?",
+        "Tsunami approaching"
       ],
       "responses": [
-        "Try restarting your router and device. If the issue persists, check if other devices are affected.",
-        "Make sure your network drivers are up to date. You can do this via Device Manager on Windows."
+        "A tsunami warning has been issued! Evacuate to higher ground immediately and follow local authorities' instructions.",
+        "Stay away from the coast. Tsunami waves can arrive within minutes after an alert."
       ]
     },
     {
-      "tag": "software_installation",
+      "tag": "high_waves",
       "patterns": [
-        "How to install software",
-        "Install MS Office",
-        "Install antivirus",
-        "Set up new program"
+        "High waves expected",
+        "Large waves near coast",
+        "Wave warning",
+        "Rough seas"
       ],
       "responses": [
-        "You can usually install software by downloading it from the official website and running the setup file.",
-        "Make sure to read installation instructions. For Microsoft Office, go to office.com and sign in with your account."
+        "High waves are expected along the coast. Avoid going near the shoreline and secure boats if applicable.",
+        "Exercise caution while near the ocean; waves can be dangerous even if not a tsunami."
       ]
     },
     {
-      "tag": "windows_update",
+      "tag": "storm_surge",
       "patterns": [
-        "How to update Windows",
-        "Windows not updating",
-        "Windows update stuck",
-        "Update error in Windows"
+        "Storm surge warning",
+        "Coastal surge alert",
+        "High water levels coming",
+        "Flooding from storm"
       ],
       "responses": [
-        "Go to Settings → Update & Security → Windows Update. Click 'Check for updates'.",
-        "Try troubleshooting via Windows Update Troubleshooter if updates are stuck."
+        "Storm surge alert! Coastal areas may experience sudden flooding. Move to safe areas and follow local advisories.",
+        "Ensure emergency kits are ready and evacuate if instructed by authorities."
       ]
     },
     {
-      "tag": "blue_screen_error",
+      "tag": "coastal_flooding",
       "patterns": [
-        "Blue screen of death",
-        "My PC crashed with blue screen",
-        "BSOD error",
-        "System crash with error code"
+        "Coastal flooding",
+        "Flooding near sea",
+        "Sea water entering streets",
+        "Flood risk in coastal areas"
       ],
       "responses": [
-        "BSOD usually indicates a driver or hardware issue. Note the error code and search for it on Microsoft's site.",
-        "Try booting into Safe Mode and updating your drivers or uninstalling recent software."
+        "Coastal flooding has been reported. Avoid low-lying areas and follow evacuation orders if any.",
+        "Monitor official weather updates and stay informed about flood levels."
       ]
     },
     {
-      "tag": "advanced_troubleshooting",
+      "tag": "coastal_damage",
       "patterns": [
-        "Tried everything, my PC is still slow",
-        "Reinstalled but it crashes",
-        "Nothing is working",
-        "Still facing issue",
-        "Problem not solved"
+        "Damage to coast",
+        "Shoreline destruction",
+        "Infrastructure damaged by waves",
+        "Coastal erosion"
       ],
-      "responses": [],
-      "dynamic": true
+      "responses": [
+        "Significant coastal damage has been reported. Avoid affected areas and report hazards to authorities if safe.",
+        "Do not approach damaged structures or beaches until declared safe."
+      ]
     },
     {
-      "tag": "software_suggestions",
+      "tag": "early_warning_system",
       "patterns": [
-        "Suggest a good antivirus",
-        "Best video editor?",
-        "What software should I use for coding?",
-        "Best tools for productivity"
+        "Tsunami siren",
+        "Coastal warning system",
+        "Alert system for ocean hazards",
+        "Early warning for storms"
       ],
-      "responses": [],
-      "dynamic": true
+      "responses": [
+        "Check if your area has an early warning system like sirens, SMS alerts, or app notifications.",
+        "Always follow instructions from official warning systems and local authorities."
+      ]
     },
     {
-      "tag": "general_help",
+      "tag": "emergency_kit",
       "patterns": [
-        "How to fix computer issues",
-        "My laptop isn't working",
-        "Having trouble with my PC",
-        "Help with computer problem"
+        "What should be in emergency kit?",
+        "Ocean hazard preparedness",
+        "Disaster kit items",
+        "Safety kit for flooding"
       ],
-      "responses": [],
-      "dynamic": true
+      "responses": [
+        "Emergency kit should include: water, non-perishable food, flashlight, first aid, medications, important documents, and battery-powered radio.",
+        "Consider adding personal hygiene items, blankets, and chargers for communication devices."
+      ]
+    },
+    {
+      "tag": "evacuation_plan",
+      "patterns": [
+        "Evacuation plan",
+        "How to evacuate during tsunami",
+        "Safe route for storm surge",
+        "Coastal evacuation guidance"
+      ],
+      "responses": [
+        "Know your local evacuation routes and move to higher ground during tsunamis or floods.",
+        "Always follow instructions from local authorities and avoid shortcuts through flooded areas."
+      ]
+    },
+    {
+      "tag": "general_safety",
+      "patterns": [
+        "How to stay safe during ocean hazards",
+        "Ocean disaster safety tips",
+        "Coastal safety guidelines",
+        "Safety advice for waves or floods"
+      ],
+      "responses": [
+        "Stay informed via official alerts, avoid coastal areas during storms, and move to higher ground if needed.",
+        "Never underestimate ocean hazards; even moderate waves can be dangerous."
+      ]
+    },
+    {
+      "tag": "educational_info",
+      "patterns": [
+        "What causes tsunamis?",
+        "Why do storm surges happen?",
+        "Causes of coastal flooding",
+        "Ocean hazard explanation"
+      ],
+      "responses": [
+        "Tsunamis are usually caused by undersea earthquakes or landslides.",
+        "Storm surges occur when strong winds push seawater onto the coast during storms or cyclones.",
+        "Coastal flooding can result from high tides, heavy rainfall, or combined effects of storm surge and waves."
+      ]
     },
     {
       "tag": "fallback",
       "patterns": [],
-      "responses": [],
-      "dynamic": true
-    },
-    {
-      "tag": "thanks",
-      "patterns": ["Thanks", "Thank you", "Much appreciated"],
       "responses": [
-        "You're welcome! Happy to help. 😊",
-        "No problem! Let me know if you need anything else."
+        "Sorry, I didn't understand that. Could you ask about a specific ocean hazard?",
+        "I can provide information on tsunami, high waves, storm surge, coastal flooding, coastal damage, and safety tips."
       ]
-    },
-    {
-      "tag": "install_software",
-      "patterns": [
-        "How do I install Python?",
-        "Steps to install VS Code",
-        "Help installing software",
-        "How to install Java?"
-      ],
-      "responses": [
-        "To install software like Python, visit the official website, download the installer for your OS, and follow the setup instructions.",
-        "For VS Code, go to code.visualstudio.com, download it, and run the installer. Don't forget to install extensions you need!"
-      ]
-    },
-    {
-      "tag": "network_issues",
-      "patterns": [
-        "Why is my internet not working?",
-        "Network problems",
-        "Can't connect to WiFi",
-        "WiFi is slow"
-      ],
-      "responses": [
-        "Try restarting your router. If the issue persists, check with your service provider or troubleshoot network settings.",
-        "You can also try forgetting and reconnecting to the WiFi or checking for driver updates on your device."
-      ]
-    },
-    {
-      "tag": "troubleshooting",
-      "patterns": [
-        "My app is crashing",
-        "Computer is slow",
-        "System hangs",
-        "How to fix performance issues"
-      ],
-      "responses": [
-        "Try closing unused programs, checking for malware, and updating your software. Restarting often helps too!",
-        "Run a system cleanup or check for hardware issues like insufficient RAM or overheating."
-      ]
-    },
-    {
-      "tag": "update_software",
-      "patterns": [
-        "How to update Windows?",
-        "Update apps",
-        "System update not working",
-        "Check for updates"
-      ],
-      "responses": [
-        "Go to Settings → Update & Security → Windows Update to check for updates. Ensure you're connected to the internet.",
-        "Most apps have an 'Update' option in their settings or help menu. Use that or visit the official website."
-      ]
-    },
-    {
-      "tag": "password_reset",
-      "patterns": [
-        "I forgot my password",
-        "How do I reset my password?",
-        "Recover account access",
-        "Can't log in to my account"
-      ],
-      "responses": [
-        "Go to the login page and click on 'Forgot Password'. Follow the steps to reset via email or phone.",
-        "Most platforms have password recovery options using OTP or security questions. Need help with a specific site?"
-      ]
-    },
-    {
-      "tag": "email_issues",
-      "patterns": [
-        "Can't send emails",
-        "Email not syncing",
-        "Mail app issues",
-        "Receiving duplicate emails"
-      ],
-      "responses": [
-        "Check your internet connection, ensure outgoing/incoming servers are correct, and try restarting your mail app.",
-        "Clear cache, verify login credentials, or try removing and re-adding the email account to your device."
-      ]
-    },
-    {
-      "tag": "printer_issues",
-      "patterns": [
-        "Printer not working",
-        "Can't print documents",
-        "Printer offline",
-        "Printing is very slow"
-      ],
-      "responses": [
-        "Ensure the printer is powered on, properly connected, and not out of paper/ink. Try restarting the printer and your PC.",
-        "Go to Control Panel > Devices and Printers > Right-click your printer > Set as default printer."
-      ]
-    },
-    {
-      "tag": "virus_protection",
-      "patterns": [
-        "Do I need antivirus?",
-        "Protect my PC from viruses",
-        "Free antivirus recommendations",
-        "How to remove malware"
-      ],
-      "responses": [
-        "Yes, antivirus helps protect your system. Windows Defender is a built-in option, or try Avast, Bitdefender, or Kaspersky.",
-        "Scan your PC regularly, avoid unknown links, and use secure Wi-Fi connections. Malwarebytes is a good removal tool."
-      ]
-    },
-    {
-      "tag": "mobile_troubles",
-      "patterns": [
-        "Phone is freezing",
-        "Phone is hanging",
-        "Mobile is lagging",
-        "Mobile apps not opening",
-        "Battery drains quickly",
-        "Mobile phone slow",
-        "How to free up storage on my phone"
-      ],
-      "responses": [
-        "If your phone is freezing or hanging, try restarting it, clear cached data, and uninstall unused apps. Ensure your phone's software is up to date.",
-        "Battery issues can be caused by background apps. Check battery usage in settings, and disable GPS, Bluetooth, or background sync when not needed.",
-        "To free up storage, delete unused files, clear app cache, and consider moving media to cloud storage or SD card."
-      ]
-    },
-    {
-      "tag": "data_backup",
-      "patterns": [
-        "How to back up my data?",
-        "Backup phone files",
-        "Cloud backup options",
-        "External hard drive for backup"
-      ],
-      "responses": [
-        "Use cloud services like Google Drive, iCloud, or OneDrive. For large files, use an external hard drive or SSD.",
-        "Regularly backing up ensures you don’t lose important files during system crashes or upgrades."
-      ]
-    },
-    {
-      "tag": "software_recommendations",
-      "patterns": [
-        "Best video editing software?",
-        "Which IDE for Python?",
-        "Free graphic design tools",
-        "What app to use for task management?"
-      ],
-      "responses": [
-        "For video editing, try DaVinci Resolve or Adobe Premiere. For design, Canva and Figma are great free tools.",
-        "VS Code is a great IDE for Python. For task management, use Notion, Trello, or Microsoft To Do."
-
-  ]
-}
+    }
   ]
 }
