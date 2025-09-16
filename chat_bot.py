@@ -1,56 +1,45 @@
 import os
-import json
 import random
-import re
 import streamlit as st
-import numpy as np
 import pandas as pd
 from datetime import datetime
-from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
-from sklearn.metrics.pairwise import cosine_similarity
-import requests
-from bs4 import BeautifulSoup
+import google.generativeai as genai
 
-st.set_page_config(page_title="ocean Hazard Chatbot", page_icon="🌊")
+# ------------------------------
+# Streamlit page setup
+# ------------------------------
+st.set_page_config(page_title="🌊 Ocean Hazard Chatbot", page_icon="💻")
 
+# ------------------------------
+# Gemini setup
+# ------------------------------
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "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")  # or set in Streamlit secrets
+genai.configure(api_key=GEMINI_API_KEY)
 
-def preprocess(text):
-    tokens = re.findall(r'\b\w+\b', text.lower())
-    filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
-    return " ".join(filtered)
+# Load Gemini model
+model = genai.GenerativeModel("google/gemini-2.5-flash-lite")
 
+# ------------------------------
+# Chatbot function
+# ------------------------------
+def chatbot(input_text: str) -> str:
+    try:
+        response = model.generate_content([
+            {"role": "system", "parts": 
+                "You are an Ocean Hazard Assistant 🌊. "
+                "Provide safety alerts and information about tsunamis, storm surges, flooding, coastal damage, "
+                "early warnings, evacuation plans, and general preparedness. "
+                "Be clear and concise, and always prioritize safety."
+            },
+            {"role": "user", "parts": input_text}
+        ])
+        return response.text.strip()
+    except Exception as e:
+        return f"⚠️ Error fetching response from Gemini: {e}"
 
-file_path = "tech_intents.json"
-intents = []
-try:
-    with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-        if "intents" in data:
-            intents = data["intents"]
-except Exception as e:
-    st.error(f"Error loading intents: {e}")
-
-
-patterns, tags, processed_patterns = [], [], []
-tag_to_responses = {}
-dynamic_tags = set()
-
-if intents:
-    for intent in intents:
-        for pattern in intent["patterns"]:
-            patterns.append(pattern)
-            processed_patterns.append(preprocess(pattern))
-            tags.append(intent["tag"])
-
-        tag_to_responses[intent["tag"]] = intent.get("responses", [])
-        if intent.get("dynamic", False):
-            dynamic_tags.add(intent["tag"])
-
-
-vectorizer = TfidfVectorizer()
-x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
-
-
+# ------------------------------
+# Conversation logging
+# ------------------------------
 def log_chat(user_input, bot_response):
     log_file = "tech_chat_log.csv"
     entry = {
@@ -65,58 +54,11 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-
-def fetch_dynamic_response(query):
-    try:
-        search_query = "+".join(query.strip().split())
-        url = f"https://www.google.com/search?q={search_query}"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # Try span-based results first
-        for span in soup.select('.aCOpRe span'):
-            text = span.get_text().strip()
-            if len(text.split()) >= 6:
-                return text
-
-        
-        for div in soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd"):
-            text = div.get_text().strip()
-            if len(text.split()) >= 6:
-                return text
-
-        return "I searched online but couldn't find a clear solution. Try rephrasing or being more specific."
-    except Exception as e:
-        return f"Sorry, I couldn't fetch online results due to an error: {e}"
-
-
-def chatbot(input_text):
-    if x_train is None:
-        return "Sorry, I can't process your query right now."
-
-    input_vec = vectorizer.transform([preprocess(input_text)])
-    similarity = cosine_similarity(input_vec, x_train).flatten()
-    best_index = np.argmax(similarity)
-    confidence = similarity[best_index]
-
-    # Low confidence fallback: Try Google if available
-    if confidence < 0.3:
-        return fetch_dynamic_response(input_text)
-
-    matched_tag = tags[best_index]
-    responses = tag_to_responses.get(matched_tag, [])
-
-    if matched_tag in dynamic_tags:
-        return fetch_dynamic_response(input_text)
-    elif responses:
-        return random.choice(responses)
-
-    return "I understand your question, but I don't have a good answer yet."
-
-
+# ------------------------------
+# Streamlit App UI
+# ------------------------------
 def main():
-    st.title("🌊 Ocean Hazard chatbot")
+    st.title("💻 Ocean Hazard Chatbot (Gemini)")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
@@ -125,7 +67,7 @@ def main():
     if "clear_flag" not in st.session_state:
         st.session_state.clear_flag = False
 
-    
+    # Sidebar
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
@@ -134,7 +76,7 @@ def main():
         st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-   
+    # Navigation buttons
     st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -144,12 +86,12 @@ def main():
         if st.button("🕘 Conversation History"):
             st.session_state.page = "history"
     with col3:
-        if st.button("ℹ About"):
+        if st.button("ℹ️ About"):
             st.session_state.page = "about"
 
- 
+    # Chat page
     if st.session_state.page == "chat":
-        st.subheader("💬 Ask Your Tech Questions")
+        st.subheader("💬 Ask Your Ocean Hazard Questions")
 
         for msg in st.session_state.chat_history:
             with st.chat_message(msg["role"]):
@@ -168,7 +110,7 @@ def main():
 
             log_chat(user_input, bot_reply)
 
-  
+    # History page
     elif st.session_state.page == "history":
         st.subheader("🕘 Past Conversations")
         if os.path.exists("tech_chat_log.csv"):
@@ -178,28 +120,34 @@ def main():
                 lambda row: search_term.lower() in str(row["User Input"]).lower() or
                             search_term.lower() in str(row["Bot Response"]).lower(),
                 axis=1
-            )]
+            )] if search_term else chat_df
             for _, row in filtered_df.iterrows():
-                st.markdown(f"*User:* {row['User Input']}")
-                st.markdown(f"*Bot:* {row['Bot Response']}")
+                st.markdown(f"**User:** {row['User Input']}")
+                st.markdown(f"**Bot:** {row['Bot Response']}")
                 st.markdown("---")
         else:
             st.info("No past conversations found.")
 
-   
+    # About page
     elif st.session_state.page == "about":
-        st.subheader("ℹ About This Chatbot")
+        st.subheader("ℹ️ About This Chatbot")
         st.write("""
-        🤖 This is a smart tech support chatbot built using:
-        - *Streamlit* for the UI  
-        - *Scikit-learn* for TF-IDF based intent matching  
-        - *Google Search Snippet Fetching* for dynamic questions  
-        - *Local CSV logging* of conversations  
-        - *JSON-based intent training* via tech_intents.json  
-        
-        💡 To update or add responses, edit tech_intents.json.
+        🤖 This chatbot is powered by **Google Gemini**  
+        🌊 It provides real-time answers about:
+        - Tsunamis
+        - High waves
+        - Storm surges
+        - Coastal flooding
+        - Evacuation & safety tips  
+
+        **Tech stack used:**
+        - Streamlit (UI)
+        - Gemini API (chat intelligence)
+        - CSV logging for conversation history  
+
+        💡 No JSON intents needed — answers are generated dynamically by AI.
         """)
 
+# ------------------------------
 if __name__ == "__main__":
     main()
-
