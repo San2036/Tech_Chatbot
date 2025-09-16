@@ -11,7 +11,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import requests
 from bs4 import BeautifulSoup
 
-st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
+st.set_page_config(page_title="Ocean Hazard Chatbot", page_icon="💻")
 
 
 def preprocess(text):
@@ -116,7 +116,7 @@ def chatbot(input_text):
 
 
 def main():
-    st.title("💻 Tech Support Chatbot")
+    st.title("💻 Ocean Hazard Chatbot")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
