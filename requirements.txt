@@ -4,4 +4,4 @@ scikit-learn
 numpy
 pandas
 beautifulsoup4
-openai>=1.0.0
+google-generativeai
