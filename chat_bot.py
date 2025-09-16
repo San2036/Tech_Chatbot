@@ -21,7 +21,8 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 HEADERS = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "HTTP-Referer": "http://localhost:8501",  # change if hosted
+    "Content-Type": "application/json",
+    "Referer": "http://localhost:8501",   # must be 'Referer'
     "X-Title": "Ocean Hazard Chatbot"
 }
 
