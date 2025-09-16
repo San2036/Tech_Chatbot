@@ -200,5 +200,6 @@ def main():
         💡 To update or add responses, edit tech_intents.json.
         """)
 
-if _name_ == "_main_":
-    main() 
+if __name__ == "__main__":
+    main()
+
