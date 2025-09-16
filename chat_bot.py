@@ -1,61 +1,56 @@
 import os
-import requests
+import json
+import random
+import re
 import streamlit as st
+import numpy as np
 import pandas as pd
 from datetime import datetime
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
+from sklearn.metrics.pairwise import cosine_similarity
+import requests
+from bs4 import BeautifulSoup
 
-# ------------------------------
-# Streamlit setup
-# ------------------------------
-st.set_page_config(page_title="🌊 Ocean Hazard Chatbot", page_icon="💻")
+st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
 
-# ------------------------------
-# OpenRouter setup
-# ------------------------------
-OPENROUTER_API_KEY = os.getenv(
-    "OPENROUTER_API_KEY",
-    "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"
-)
 
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+def preprocess(text):
+    tokens = re.findall(r'\b\w+\b', text.lower())
+    filtered = [word for word in tokens if word not in ENGLISH_STOP_WORDS]
+    return " ".join(filtered)
 
-HEADERS = {
-    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "Content-Type": "application/json"
-}
 
-# ------------------------------
-# Chatbot function
-# ------------------------------
-def chatbot(input_text: str) -> str:
-    try:
-        payload = {
-            "model": "google/gemini-flash-1.5",  # Gemini via OpenRouter
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an Ocean Hazard Assistant 🌊. "
-                        "Provide safety alerts and information about tsunamis, storm surges, flooding, "
-                        "coastal damage, early warnings, evacuation plans, and preparedness. "
-                        "Be clear, concise, and prioritize safety."
-                    )
-                },
-                {"role": "user", "content": input_text}
-            ]
-        }
-        response = requests.post(OPENROUTER_URL, headers=HEADERS, json=payload, timeout=30)
-        data = response.json()
-        if "choices" in data:
-            return data["choices"][0]["message"]["content"].strip()
-        else:
-            return f"⚠️ Error: {data}"
-    except Exception as e:
-        return f"⚠️ Error fetching response from OpenRouter: {e}"
+file_path = "tech_intents.json"
+intents = []
+try:
+    with open(file_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+        if "intents" in data:
+            intents = data["intents"]
+except Exception as e:
+    st.error(f"Error loading intents: {e}")
 
-# ------------------------------
-# Conversation logging
-# ------------------------------
+
+patterns, tags, processed_patterns = [], [], []
+tag_to_responses = {}
+dynamic_tags = set()
+
+if intents:
+    for intent in intents:
+        for pattern in intent["patterns"]:
+            patterns.append(pattern)
+            processed_patterns.append(preprocess(pattern))
+            tags.append(intent["tag"])
+
+        tag_to_responses[intent["tag"]] = intent.get("responses", [])
+        if intent.get("dynamic", False):
+            dynamic_tags.add(intent["tag"])
+
+
+vectorizer = TfidfVectorizer()
+x_train = vectorizer.fit_transform(processed_patterns) if processed_patterns else None
+
+
 def log_chat(user_input, bot_response):
     log_file = "tech_chat_log.csv"
     entry = {
@@ -70,40 +65,92 @@ def log_chat(user_input, bot_response):
         df = pd.DataFrame([entry])
     df.to_csv(log_file, index=False)
 
-# ------------------------------
-# Streamlit UI
-# ------------------------------
+
+def fetch_dynamic_response(query):
+    try:
+        search_query = "+".join(query.strip().split())
+        url = f"https://www.google.com/search?q={search_query}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers, timeout=5)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Try span-based results first
+        for span in soup.select('.aCOpRe span'):
+            text = span.get_text().strip()
+            if len(text.split()) >= 6:
+                return text
+
+        
+        for div in soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd"):
+            text = div.get_text().strip()
+            if len(text.split()) >= 6:
+                return text
+
+        return "I searched online but couldn't find a clear solution. Try rephrasing or being more specific."
+    except Exception as e:
+        return f"Sorry, I couldn't fetch online results due to an error: {e}"
+
+
+def chatbot(input_text):
+    if x_train is None:
+        return "Sorry, I can't process your query right now."
+
+    input_vec = vectorizer.transform([preprocess(input_text)])
+    similarity = cosine_similarity(input_vec, x_train).flatten()
+    best_index = np.argmax(similarity)
+    confidence = similarity[best_index]
+
+    # Low confidence fallback: Try Google if available
+    if confidence < 0.3:
+        return fetch_dynamic_response(input_text)
+
+    matched_tag = tags[best_index]
+    responses = tag_to_responses.get(matched_tag, [])
+
+    if matched_tag in dynamic_tags:
+        return fetch_dynamic_response(input_text)
+    elif responses:
+        return random.choice(responses)
+
+    return "I understand your question, but I don't have a good answer yet."
+
+
 def main():
-    st.title("💻 Ocean Hazard Chatbot (Gemini via OpenRouter)")
+    st.title("💻 Tech Support Chatbot")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "page" not in st.session_state:
         st.session_state.page = "home"
+    if "clear_flag" not in st.session_state:
+        st.session_state.clear_flag = False
 
-    # Sidebar
+    
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
     if st.sidebar.button("🧹 Clear Chat History"):
         st.session_state.chat_history = []
         if os.path.exists("tech_chat_log.csv"):
             os.remove("tech_chat_log.csv")
+        st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-    # Navigation
+   
+    st.subheader("🏠 Home Page")
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("💬 Chat"):
             st.session_state.page = "chat"
     with col2:
-        if st.button("🕘 History"):
+        if st.button("🕘 Conversation History"):
             st.session_state.page = "history"
     with col3:
-        if st.button("ℹ️ About"):
+        if st.button("ℹ About"):
             st.session_state.page = "about"
 
-    # Chat page
+ 
     if st.session_state.page == "chat":
-        st.subheader("💬 Ask Your Ocean Hazard Questions")
+        st.subheader("💬 Ask Your Tech Questions")
+
         for msg in st.session_state.chat_history:
             with st.chat_message(msg["role"]):
                 st.write(msg["text"])
@@ -121,7 +168,7 @@ def main():
 
             log_chat(user_input, bot_reply)
 
-    # History page
+  
     elif st.session_state.page == "history":
         st.subheader("🕘 Past Conversations")
         if os.path.exists("tech_chat_log.csv"):
@@ -131,23 +178,27 @@ def main():
                 lambda row: search_term.lower() in str(row["User Input"]).lower() or
                             search_term.lower() in str(row["Bot Response"]).lower(),
                 axis=1
-            )] if search_term else chat_df
+            )]
             for _, row in filtered_df.iterrows():
-                st.markdown(f"**User:** {row['User Input']}")
-                st.markdown(f"**Bot:** {row['Bot Response']}")
+                st.markdown(f"*User:* {row['User Input']}")
+                st.markdown(f"*Bot:* {row['Bot Response']}")
                 st.markdown("---")
         else:
             st.info("No past conversations found.")
 
-    # About page
+   
     elif st.session_state.page == "about":
-        st.subheader("ℹ️ About This Chatbot")
+        st.subheader("ℹ About This Chatbot")
         st.write("""
-        🤖 Powered by **OpenRouter / Gemini 1.5 Flash**  
-        🌊 Real-time answers on tsunamis, storm surges, flooding, coastal damage, and evacuation tips.  
-        **Tech stack:** Streamlit + OpenRouter API + CSV logging
+        🤖 This is a smart tech support chatbot built using:
+        - *Streamlit* for the UI  
+        - *Scikit-learn* for TF-IDF based intent matching  
+        - *Google Search Snippet Fetching* for dynamic questions  
+        - *Local CSV logging* of conversations  
+        - *JSON-based intent training* via tech_intents.json  
+        
+        💡 To update or add responses, edit tech_intents.json.
         """)
 
-# ------------------------------
-if __name__ == "__main__":
-    main()
+if _name_ == "__main__":
+    main() 
