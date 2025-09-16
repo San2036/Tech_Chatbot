@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 # ------------------------------
-# Streamlit page setup
+# Streamlit setup
 # ------------------------------
 st.set_page_config(page_title="🌊 Ocean Hazard Chatbot", page_icon="💻")
 
@@ -14,16 +14,14 @@ st.set_page_config(page_title="🌊 Ocean Hazard Chatbot", page_icon="💻")
 # ------------------------------
 OPENROUTER_API_KEY = os.getenv(
     "OPENROUTER_API_KEY",
-    "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"  # fallback for local testing
+    "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"
 )
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 HEADERS = {
     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "Content-Type": "application/json",
-    "Referer": "http://localhost:8501",   # must be 'Referer'
-    "X-Title": "Ocean Hazard Chatbot"
+    "Content-Type": "application/json"
 }
 
 # ------------------------------
@@ -31,27 +29,22 @@ HEADERS = {
 # ------------------------------
 def chatbot(input_text: str) -> str:
     try:
-        response = requests.post(
-            OPENROUTER_URL,
-            headers=HEADERS,
-            json={
-                "model": "google/gemini-flash-1.5",  # Gemini via OpenRouter
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an Ocean Hazard Assistant 🌊. "
-                            "Provide safety alerts and information about tsunamis, storm surges, flooding, "
-                            "coastal damage, early warnings, evacuation plans, and preparedness. "
-                            "Be clear, concise, and prioritize safety."
-                        )
-                    },
-                    {"role": "user", "content": input_text}
-                ]
-            },
-            timeout=30
-        )
-
+        payload = {
+            "model": "google/gemini-flash-1.5",  # Gemini via OpenRouter
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an Ocean Hazard Assistant 🌊. "
+                        "Provide safety alerts and information about tsunamis, storm surges, flooding, "
+                        "coastal damage, early warnings, evacuation plans, and preparedness. "
+                        "Be clear, concise, and prioritize safety."
+                    )
+                },
+                {"role": "user", "content": input_text}
+            ]
+        }
+        response = requests.post(OPENROUTER_URL, headers=HEADERS, json=payload, timeout=30)
         data = response.json()
         if "choices" in data:
             return data["choices"][0]["message"]["content"].strip()
@@ -78,7 +71,7 @@ def log_chat(user_input, bot_response):
     df.to_csv(log_file, index=False)
 
 # ------------------------------
-# Streamlit App UI
+# Streamlit UI
 # ------------------------------
 def main():
     st.title("💻 Ocean Hazard Chatbot (Gemini via OpenRouter)")
@@ -87,8 +80,6 @@ def main():
         st.session_state.chat_history = []
     if "page" not in st.session_state:
         st.session_state.page = "home"
-    if "clear_flag" not in st.session_state:
-        st.session_state.clear_flag = False
 
     # Sidebar
     st.sidebar.image("https://cdn-icons-png.flaticon.com/512/4712/4712027.png", width=150)
@@ -96,17 +87,15 @@ def main():
         st.session_state.chat_history = []
         if os.path.exists("tech_chat_log.csv"):
             os.remove("tech_chat_log.csv")
-        st.session_state.clear_flag = True
         st.success("Chat history cleared!")
 
-    # Navigation buttons
-    st.subheader("🏠 Home Page")
+    # Navigation
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("💬 Chat"):
             st.session_state.page = "chat"
     with col2:
-        if st.button("🕘 Conversation History"):
+        if st.button("🕘 History"):
             st.session_state.page = "history"
     with col3:
         if st.button("ℹ️ About"):
@@ -115,7 +104,6 @@ def main():
     # Chat page
     if st.session_state.page == "chat":
         st.subheader("💬 Ask Your Ocean Hazard Questions")
-
         for msg in st.session_state.chat_history:
             with st.chat_message(msg["role"]):
                 st.write(msg["text"])
@@ -155,20 +143,9 @@ def main():
     elif st.session_state.page == "about":
         st.subheader("ℹ️ About This Chatbot")
         st.write("""
-        🤖 This chatbot is powered by **OpenRouter (Gemini 1.5 Flash)**  
-        🌊 It provides real-time answers about:
-        - Tsunamis
-        - High waves
-        - Storm surges
-        - Coastal flooding
-        - Evacuation & safety tips  
-
-        **Tech stack used:**
-        - Streamlit (UI)
-        - OpenRouter API (Gemini intelligence)
-        - CSV logging for conversation history  
-
-        💡 No JSON intents needed — answers are generated dynamically by AI.
+        🤖 Powered by **OpenRouter / Gemini 1.5 Flash**  
+        🌊 Real-time answers on tsunamis, storm surges, flooding, coastal damage, and evacuation tips.  
+        **Tech stack:** Streamlit + OpenRouter API + CSV logging
         """)
 
 # ------------------------------
