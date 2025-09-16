@@ -1,9 +1,8 @@
 import os
-import random
+import requests
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import google.generativeai as genai
 
 # ------------------------------
 # Streamlit page setup
@@ -11,31 +10,54 @@ import google.generativeai as genai
 st.set_page_config(page_title="🌊 Ocean Hazard Chatbot", page_icon="💻")
 
 # ------------------------------
-# Gemini setup
+# OpenRouter setup
 # ------------------------------
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "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")  # or set in Streamlit secrets
-genai.configure(api_key=GEMINI_API_KEY)
+OPENROUTER_API_KEY = os.getenv(
+    "OPENROUTER_API_KEY",
+    "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"  # fallback for local testing
+)
 
-# Load Gemini model
-model = genai.GenerativeModel("google/gemini-2.5-flash-lite")
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+HEADERS = {
+    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+    "HTTP-Referer": "http://localhost:8501",  # change if hosted
+    "X-Title": "Ocean Hazard Chatbot"
+}
 
 # ------------------------------
 # Chatbot function
 # ------------------------------
 def chatbot(input_text: str) -> str:
     try:
-        response = model.generate_content([
-            {"role": "system", "parts": 
-                "You are an Ocean Hazard Assistant 🌊. "
-                "Provide safety alerts and information about tsunamis, storm surges, flooding, coastal damage, "
-                "early warnings, evacuation plans, and general preparedness. "
-                "Be clear and concise, and always prioritize safety."
+        response = requests.post(
+            OPENROUTER_URL,
+            headers=HEADERS,
+            json={
+                "model": "google/gemini-flash-1.5",  # Gemini via OpenRouter
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an Ocean Hazard Assistant 🌊. "
+                            "Provide safety alerts and information about tsunamis, storm surges, flooding, "
+                            "coastal damage, early warnings, evacuation plans, and preparedness. "
+                            "Be clear, concise, and prioritize safety."
+                        )
+                    },
+                    {"role": "user", "content": input_text}
+                ]
             },
-            {"role": "user", "parts": input_text}
-        ])
-        return response.text.strip()
+            timeout=30
+        )
+
+        data = response.json()
+        if "choices" in data:
+            return data["choices"][0]["message"]["content"].strip()
+        else:
+            return f"⚠️ Error: {data}"
     except Exception as e:
-        return f"⚠️ Error fetching response from Gemini: {e}"
+        return f"⚠️ Error fetching response from OpenRouter: {e}"
 
 # ------------------------------
 # Conversation logging
@@ -58,7 +80,7 @@ def log_chat(user_input, bot_response):
 # Streamlit App UI
 # ------------------------------
 def main():
-    st.title("💻 Ocean Hazard Chatbot (Gemini)")
+    st.title("💻 Ocean Hazard Chatbot (Gemini via OpenRouter)")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
@@ -132,7 +154,7 @@ def main():
     elif st.session_state.page == "about":
         st.subheader("ℹ️ About This Chatbot")
         st.write("""
-        🤖 This chatbot is powered by **Google Gemini**  
+        🤖 This chatbot is powered by **OpenRouter (Gemini 1.5 Flash)**  
         🌊 It provides real-time answers about:
         - Tsunamis
         - High waves
@@ -142,7 +164,7 @@ def main():
 
         **Tech stack used:**
         - Streamlit (UI)
-        - Gemini API (chat intelligence)
+        - OpenRouter API (Gemini intelligence)
         - CSV logging for conversation history  
 
         💡 No JSON intents needed — answers are generated dynamically by AI.
