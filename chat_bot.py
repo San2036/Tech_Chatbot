@@ -13,10 +13,10 @@ st.set_page_config(page_title="Tech Support Chatbot", page_icon="💻")
 # ------------------------------
 # Azure OpenAI setup
 # ------------------------------
-AZURE_OPENAI_KEY = "YOUR_AZURE_OPENAI_KEY"
-AZURE_OPENAI_ENDPOINT = "https://YOUR-RESOURCE-NAME.openai.azure.com/"
-AZURE_OPENAI_MODEL = "gpt-35-turbo"   # Change to your deployed model name
-AZURE_API_VERSION = "2024-05-01-preview"
+AZURE_OPENAI_KEY = "C8E12FuhHoPJJ05WWaa0d4qBNgu77j3MGbiWzhOaBRJz0qQg3ml9JQQJ99ALACL93NaXJ3w3AAABACOGHJI1"
+AZURE_OPENAI_ENDPOINT = "https://aiml.openai.azure.com"
+AZURE_OPENAI_MODEL = "AIML-gpt-4"   # Change to your deployed model name
+AZURE_API_VERSION = "2024-02-15-preview"
 
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
