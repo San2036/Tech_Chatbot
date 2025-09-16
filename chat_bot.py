@@ -201,4 +201,4 @@ def main():
         """)
 
 if _name_ == "_main_":
-    main() chat_bot.pystreamlit
+    main() 
